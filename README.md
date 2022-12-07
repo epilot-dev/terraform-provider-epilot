@@ -1,21 +1,26 @@
-# Terraform Provider epilot
+# epilot Terraform Provider
 
-Run the following command to build the provider
+Manage epilot configuration with terraform
 
-```shell
-go build -o terraform-provider-epilot
+https://registry.terraform.io/providers/epilot-dev/epilot
+
+## Usage
+
+```hcl
+terraform {
+  required_providers {
+    epilot = {
+      source = "epilot-dev/epilot"
+      version = "0.0.1"
+    }
+  }
+}
+
+provider "epilot" {
+  token = "<epilot access token>"
+}
 ```
 
-## Test sample configuration
-
-First, build and install the provider.
-
-```shell
-make install
-```
-
-Then, run the following command to initialize the workspace and apply the sample configuration.
-
-```shell
-terraform init && terraform apply
+```sh
+terraform init
 ```
