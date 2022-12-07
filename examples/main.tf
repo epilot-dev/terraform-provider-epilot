@@ -1,11 +1,17 @@
 terraform {
   required_providers {
     epilot = {
-      version = "0.0.1"
+      version = "0.0.2"
       source  = "hashicorp.com/epilot/epilot"
     }
   }
 }
 
-provider "epilot" {}
+provider "epilot" {
+  token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjRaRnpITVkyVjJyMXRjcW15bEJUaVozSkRSR3pKVW5JeG5Rcm9rQVNGOUEifQ.eyJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJ0b2tlbl9pZCI6ImFwaV9NREJJNGhDUEZ0TUNlelh0QXhLcTUiLCJ0b2tlbl9uYW1lIjoiVGVycmFmb3JtIHRlc3QgdG9rZW4iLCJvcmdfaWQiOiI2NiIsInVzZXJfaWQiOiJhcGlfTURCSTRoQ1BGdE1DZXpYdEF4S3E1IiwidG9rZW5fdHlwZSI6ImFwaSIsImN1c3RvbTppdnlfb3JnX2lkIjoiNjYiLCJjdXN0b206aXZ5X3VzZXJfaWQiOiJhcGlfTURCSTRoQ1BGdE1DZXpYdEF4S3E1IiwiYXNzdW1lX3JvbGVzIjpbIjY2OmFkbWluaXN0cmF0b3IiXSwiaXNzIjoiaHR0cHM6Ly9hY2Nlc3MtdG9rZW4uc2xzLmVwaWxvdC5pby92MS9hY2Nlc3MtdG9rZW5zIiwiaWF0IjoxNjcwNDIwMTY5fQ.iOcfaDTFUU0Oxin95niyqxKIEolHLq1j0MKc2Y_6L9eHIWgOl7cqmBYuQudwJQPjglxSKVXwDf2qXvKLMONCCxe5CQVYUh_-tfSjbma_1BFnWGFVbMAbnTMt3kdpfy4teCihcYwzzep_1YbCrizIkYIqNTvVBVVGxW2VYD8joSnPvR4oMM2HW8DlX5sA5syK4hLvFPYEi2CKRVmRlNpOHBdmNMZBihWGeY3EyPZ0GyCQs9OFiSyZ967QUwoEewS3_FIR1nTo4K7VECR0yefM58Eml1eikLUKVRRPq2TyPnSaotEfbVeplCPMOxlb9WUvDtBK2oQAtvknIZIKmF5xpw"
+}
+
+data "epilot_current_user" "user" {
+
+}
 
