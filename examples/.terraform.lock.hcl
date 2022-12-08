@@ -1,0 +1,25 @@
+# This file is maintained automatically by "terraform init".
+# Manual edits may be lost in future updates.
+
+provider "registry.terraform.io/epilot-dev/epilot" {
+  version     = "0.0.2"
+  constraints = "0.0.2"
+  hashes = [
+    "h1:1VcYeGfixU/VoGE1eISOynxSqX3U2LTP+3TNyPFf71o=",
+    "zh:06b11d490f7dd0bbaae504db6d67f19f0098b370d5f3a825d989ad3ee3b098ac",
+    "zh:3a537d01e6601e66e7dc9a8a0821b5a45e35d8c4d6816343fc3d294779919008",
+    "zh:41b1c53373583fdd7e72a78571aa538b7fc273039a38aa6fc9d3188444682924",
+    "zh:58204fc90862f763a8083bf31a62be81754cbe0db65142b95ce95f6d4c8c0d60",
+    "zh:6fe1510f17799ba6c38d7922587504832086faf8601c1b5af4532dcad37cf8f4",
+    "zh:78f2bb5824064bc0a64133ad94177d37509172d52e1c3d6da703975bf6fb3677",
+    "zh:890df766e9b839623b1f0437355032a3c006226a6c200cd911e15ee1a9014e9f",
+    "zh:920a5d1bb2843e1e3269f99a33c16ab28915d650a4034e82ef323e4a97318384",
+    "zh:abd6f0c9ccd19e0c0e4f6193c10c5c501606f8c222b442f3cad1a1314718b0ab",
+    "zh:acf95f434a58e87338b4ce52a3480a3a2182d395e35451e56f79f5bc9838ebf9",
+    "zh:bd59cbda1faf78a62b55688030fbf7949498b39bdd69014ce773eaf1349402da",
+    "zh:c4bc1ee1855095e32645c92efeff59081ecd1ad658302f694ea4542d8dc991e6",
+    "zh:e257585dccaf2d505b672dee254cfeb921d54c4867cf30a3a6ff29ea79ea7b33",
+    "zh:e89983fe87ba15dce4800f52c12d6ce78fa719523d6d9cfe7f6612ed8d96bd06",
+    "zh:eb63aa6ae41bb818590186e60af3532ad58856a01bd36afd8c8c948a6d8d9cba",
+  ]
+}
