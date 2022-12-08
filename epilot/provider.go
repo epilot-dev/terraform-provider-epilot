@@ -4,6 +4,8 @@ import (
 	"context"
 	"os"
 
+	"github.com/deepmap/oapi-codegen/pkg/securityprovider"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -25,7 +27,7 @@ func New() provider.Provider {
 }
 
 type epilotCommonContext struct{
-	Token string
+	//Token string
 	UserClient *ClientWithResponses
 } 
 
@@ -115,15 +117,21 @@ func (p *epilotProvider) Configure(ctx context.Context, req provider.ConfigureRe
 	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "epilot_token")
 
 	// TODO: Create a new epilot client using the configuration values
-	client, err := NewClientWithResponses("https://user.sls.epilot.io/v2/")
+	bearerTokenProvider, bearerTokenProviderErr := securityprovider.NewSecurityProviderBearerToken(token)
+	if bearerTokenProviderErr != nil {
+			panic(bearerTokenProviderErr)
+	}
+
+	userClient, err := NewClientWithResponses("https://user.sls.epilot.io/", WithRequestEditorFn(bearerTokenProvider.Intercept))
 	if err != nil {
-		panic(err)
+	 	panic(err)
 	}
 
 	// client := &epilotCommonContext{
 	// 	Token: token,
 	// 	UserClient: userClient,
 	// }
+	client := &epilotCommonContext{UserClient: userClient}
 
 	resp.DataSourceData = client
 	resp.ResourceData = client
