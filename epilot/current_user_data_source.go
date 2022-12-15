@@ -11,6 +11,7 @@ import (
 
 type currentUserDataSourceModel struct {
 	Email types.String `tfsdk:"email"`
+	ID    types.String `tfsdk:"id"`
 }
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -24,13 +25,13 @@ func NewCurrentUserDataSource() datasource.DataSource {
 }
 
 // currentUserDataSource is the data source implementation.
-type currentUserDataSource struct{
+type currentUserDataSource struct {
 	client *epilotCommonContext
 }
 
 func (d *currentUserDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
-			return
+		return
 	}
 
 	d.client = req.ProviderData.(*epilotCommonContext)
@@ -45,6 +46,10 @@ func (d *currentUserDataSource) Metadata(_ context.Context, req datasource.Metad
 func (d *currentUserDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Attributes: map[string]tfsdk.Attribute{
+			"id": {
+				Computed: true,
+				Type:     types.StringType,
+			},
 			"email": {
 				Type:     types.StringType,
 				Computed: true,
@@ -67,6 +72,7 @@ func (d *currentUserDataSource) Read(ctx context.Context, req datasource.ReadReq
 	user := *getMeResp.JSON200
 	state := currentUserDataSourceModel{
 		Email: types.StringValue(string(*user.Email)),
+		ID:    types.StringValue("placeholder"),
 	}
 
 	// Set state
