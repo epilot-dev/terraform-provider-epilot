@@ -21,4 +21,4 @@ jobs:
       - name: Download Go Modules
         run: go mod download
       - name: Run Go Tests
-        run: TF_VAR_TOKEN=${{ secrets.EPILOT_AUTH_TOKEN }} TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m
+        run: TF_VAR_TOKEN=${{ secrets.EPILOT_AUTH_TOKEN }} make testacc
