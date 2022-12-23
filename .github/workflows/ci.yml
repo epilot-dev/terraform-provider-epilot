@@ -1,0 +1,24 @@
+name: release
+on:
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Unshallow
+        run: git fetch --prune --unshallow
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version-file: "go.mod"
+          cache: true
+      - name: Download Go Modules
+        run: go mod download
+      - name: Run Go Tests
+        run: TF_VAR_TOKEN=${{ secrets.EPILOT_AUTH_TOKEN }} TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m
