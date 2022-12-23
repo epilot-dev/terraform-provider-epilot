@@ -2,8 +2,7 @@
 # Manual edits may be lost in future updates.
 
 provider "registry.terraform.io/epilot-dev/epilot" {
-  version     = "0.0.2"
-  constraints = "0.0.2"
+  version = "0.0.2"
   hashes = [
     "h1:1VcYeGfixU/VoGE1eISOynxSqX3U2LTP+3TNyPFf71o=",
     "zh:06b11d490f7dd0bbaae504db6d67f19f0098b370d5f3a825d989ad3ee3b098ac",

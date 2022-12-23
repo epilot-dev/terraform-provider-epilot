@@ -21,4 +21,4 @@ jobs:
       - name: Download Go Modules
         run: go mod download
       - name: Run Go Tests
-        run: TF_VAR_TOKEN=${{ secrets.EPILOT_AUTH_TOKEN }} make testacc
+        run: TF_VAR_token=${{ secrets.EPILOT_AUTH_TOKEN }} make testacc

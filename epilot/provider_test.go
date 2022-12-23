@@ -8,8 +8,12 @@ import (
 const (
 	// providerConfig is a shared configuration to combine with the actual
 	providerConfig = `
+		variable "token" {
+			type = string
+		}
+
 		provider "epilot" {
-			token = "<epilot-access-token>"
+			token = var.token
 		}
 `
 )
