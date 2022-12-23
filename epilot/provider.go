@@ -4,6 +4,8 @@ import (
 	"context"
 	"os"
 
+	"github.com/deepmap/oapi-codegen/pkg/securityprovider"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -14,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-
 // Ensure the implementation satisfies the expected interfaces
 var (
 	_ provider.Provider = &epilotProvider{}
@@ -24,6 +25,11 @@ var (
 func New() provider.Provider {
 	return &epilotProvider{}
 }
+
+type epilotCommonContext struct{
+	//Token string
+	UserClient *ClientWithResponses
+} 
 
 // epilotProvider is the provider implementation.
 type epilotProvider struct{}
@@ -111,6 +117,24 @@ func (p *epilotProvider) Configure(ctx context.Context, req provider.ConfigureRe
 	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "epilot_token")
 
 	// TODO: Create a new epilot client using the configuration values
+	bearerTokenProvider, bearerTokenProviderErr := securityprovider.NewSecurityProviderBearerToken(token)
+	if bearerTokenProviderErr != nil {
+			panic(bearerTokenProviderErr)
+	}
+
+	userClient, err := NewClientWithResponses("https://user.sls.epilot.io/", WithRequestEditorFn(bearerTokenProvider.Intercept))
+	if err != nil {
+	 	panic(err)
+	}
+
+	// client := &epilotCommonContext{
+	// 	Token: token,
+	// 	UserClient: userClient,
+	// }
+	client := &epilotCommonContext{UserClient: userClient}
+
+	resp.DataSourceData = client
+	resp.ResourceData = client
 }
 
 // DataSources defines the data sources implemented in the provider.
