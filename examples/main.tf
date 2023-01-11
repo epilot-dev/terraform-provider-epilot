@@ -1,14 +1,17 @@
+variable "token" {
+  type = string
+}
+
 terraform {
   required_providers {
     epilot = {
-      version = "0.0.2"
       source  = "epilot-dev/epilot"
     }
   }
 }
 
 provider "epilot" {
-  # token = "epilot-token"
+  token = var.token
 }
 
 data "epilot_current_user" "user" {
