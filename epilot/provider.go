@@ -26,17 +26,18 @@ func New() provider.Provider {
 	return &epilotProvider{}
 }
 
-type epilotCommonContext struct{
+type epilotCommonContext struct {
 	//Token string
-	UserClient *ClientWithResponses
-} 
+	UserClient       *ClientWithResponses
+	AutomationClient *ClientWithResponses
+}
 
 // epilotProvider is the provider implementation.
 type epilotProvider struct{}
 
 // epilotProviderModel maps provider schema data to a Go type.
 type epilotProviderModel struct {
-	Token     types.String `tfsdk:"token"`
+	Token types.String `tfsdk:"token"`
 }
 
 // Metadata returns the provider type name.
@@ -91,7 +92,6 @@ func (p *epilotProvider) Configure(ctx context.Context, req provider.ConfigureRe
 
 	token := os.Getenv("EPILOT_TOKEN")
 
-
 	if !config.Token.IsNull() {
 		token = config.Token.ValueString()
 	}
@@ -119,19 +119,24 @@ func (p *epilotProvider) Configure(ctx context.Context, req provider.ConfigureRe
 	// TODO: Create a new epilot client using the configuration values
 	bearerTokenProvider, bearerTokenProviderErr := securityprovider.NewSecurityProviderBearerToken(token)
 	if bearerTokenProviderErr != nil {
-			panic(bearerTokenProviderErr)
+		panic(bearerTokenProviderErr)
 	}
 
 	userClient, err := NewClientWithResponses("https://user.sls.epilot.io/", WithRequestEditorFn(bearerTokenProvider.Intercept))
 	if err != nil {
-	 	panic(err)
+		panic(err)
+	}
+
+	automationClient, err := NewClientWithResponses("https://automation.sls.epilot.io/", WithRequestEditorFn(bearerTokenProvider.Intercept))
+	if err != nil {
+		panic(err)
 	}
 
 	// client := &epilotCommonContext{
 	// 	Token: token,
 	// 	UserClient: userClient,
 	// }
-	client := &epilotCommonContext{UserClient: userClient}
+	client := &epilotCommonContext{UserClient: userClient, AutomationClient: automationClient}
 
 	resp.DataSourceData = client
 	resp.ResourceData = client
@@ -139,12 +144,14 @@ func (p *epilotProvider) Configure(ctx context.Context, req provider.ConfigureRe
 
 // DataSources defines the data sources implemented in the provider.
 func (p *epilotProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource {
+	return []func() datasource.DataSource{
 		NewCurrentUserDataSource,
 	}
 }
 
 // Resources defines the resources implemented in the provider.
 func (p *epilotProvider) Resources(_ context.Context) []func() resource.Resource {
-	return []func() resource.Resource{}
+	return []func() resource.Resource{
+		NewAutomationResource,
+	}
 }
