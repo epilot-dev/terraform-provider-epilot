@@ -8,10 +8,8 @@ import (
 )
 
 // Open Api client generation
-//go:generate oapi-codegen --package=main -generate=types,client -o ./automation.gen.go http://localhost:3001/openapi.json
-
-// Provider documentation generation.
-//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-name terraform-provider-epilot
+//go:generate oapi-codegen --package=automation -generate=types,client -o ./epilot/automation/automation.gen.go http://localhost:3001/openapi.json
+//go:generate oapi-codegen --package=user -generate=types,client -o ./epilot/user/user.gen.go http://localhost:3002/openapi.json
 
 func main() {
 	providerserver.Serve(context.Background(), epilot.New, providerserver.ServeOpts{

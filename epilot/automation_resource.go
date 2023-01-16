@@ -2,7 +2,9 @@ package epilot
 
 import (
 	"context"
+	automation_api "terraform-provider-epilot/epilot/automation-api"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -116,6 +118,48 @@ func (r *automationResource) Schema(_ context.Context, _ resource.SchemaRequest,
 
 // Create creates the resource and sets the initial Terraform state.
 func (r *automationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var anyTrigger automation_api.AnyTrigger
+	config := struct {
+		SourceId uuid.UUID `json:"source_id"`
+	}{
+		SourceId: uuid.MustParse("679472e0-9342-11ed-8d06-2b3e41a64461"),
+	}
+
+	anyTrigger.FromJourneySubmitTrigger(automation_api.JourneySubmitTrigger{
+		Type: "journey_submission",
+		Configuration: config,
+	})
+
+
+	var anyAction automation_api.AnyActionConfig
+
+	var actionType interface{} = "send_email"
+	emailTemplateId := "ea3b4979-306a-4368-b2ae-09456730fa84"
+
+	anyAction.FromSendEmailActionConfig(automation_api.SendEmailActionConfig{
+		Type: &actionType,
+		Config: &automation_api.SendEmailConfig{
+			EmailTemplateId: &emailTemplateId,
+		},
+	})
+
+	createFlowData := automation_api.AutomationFlow{
+		FlowName: "Created from Terraform",
+		Triggers: []automation_api.AnyTrigger{
+			anyTrigger,
+		},
+		Actions: []automation_api.AnyActionConfig{
+			anyAction,
+		},
+	}
+
+	r.client.AutomationClient.CreateFlowWithResponse(ctx, createFlowData)
+
+	diags := resp.State.Set(ctx, createFlowData)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+			return
+	}
 }
 
 // Read refreshes the Terraform state with the latest data.

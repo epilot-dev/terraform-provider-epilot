@@ -4,6 +4,9 @@ import (
 	"context"
 	"os"
 
+	automation_api "terraform-provider-epilot/epilot/automation-api"
+	user_api "terraform-provider-epilot/epilot/user-api"
+
 	"github.com/deepmap/oapi-codegen/pkg/securityprovider"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -28,8 +31,8 @@ func New() provider.Provider {
 
 type epilotCommonContext struct {
 	//Token string
-	UserClient       *ClientWithResponses
-	AutomationClient *ClientWithResponses
+	UserClient       *user_api.ClientWithResponses
+	AutomationClient *automation_api.ClientWithResponses
 }
 
 // epilotProvider is the provider implementation.
@@ -122,12 +125,12 @@ func (p *epilotProvider) Configure(ctx context.Context, req provider.ConfigureRe
 		panic(bearerTokenProviderErr)
 	}
 
-	userClient, err := NewClientWithResponses("https://user.sls.epilot.io/", WithRequestEditorFn(bearerTokenProvider.Intercept))
+	userClient, err := user_api.NewClientWithResponses("https://user.sls.epilot.io/", user_api.WithRequestEditorFn(bearerTokenProvider.Intercept))
 	if err != nil {
 		panic(err)
 	}
 
-	automationClient, err := NewClientWithResponses("https://automation.sls.epilot.io/", WithRequestEditorFn(bearerTokenProvider.Intercept))
+	automationClient, err := automation_api.NewClientWithResponses("https://automation.sls.epilot.io/", automation_api.WithRequestEditorFn(bearerTokenProvider.Intercept))
 	if err != nil {
 		panic(err)
 	}
