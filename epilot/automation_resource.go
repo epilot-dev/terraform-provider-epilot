@@ -2,12 +2,12 @@ package epilot
 
 import (
 	"context"
-	automation_api "terraform-provider-epilot/epilot/automation-api"
-
+	openapi_types "github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/google/uuid"
+	automationapi "terraform-provider-epilot/epilot/automation-api"
+
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -18,31 +18,31 @@ var (
 
 // automationResourceModel maps the resource schema data.
 type automationResourceModel struct {
-	FlowName types.String `tfsdk:"flow_name"`
-	Triggers []any        `tfsdk:"triggers"`
-	Actions  []any        `tfsdk:"actions"`
+	FlowName string                   `tfsdk:"flow_name"`
+	Triggers []automationTriggerModel `tfsdk:"triggers"`
+	Actions  []automationActionsModel `tfsdk:"actions"`
 }
 
 // automationTriggerModel maps order item data.
 type automationTriggerModel struct {
-	Type          types.String       `tfsdk:"type"`
+	Type          string             `tfsdk:"type"`
 	Configuration triggerConfigModel `tfsdk:"configuration"`
 }
 
 // triggerConfigurationModel maps coffee order item data.
 type triggerConfigModel struct {
-	SourceID types.String `tfsdk:"source_id"`
+	SourceID string `tfsdk:"source_id"`
 }
 
 // automationTriggerModel maps order item data.
 type automationActionsModel struct {
-	Type   types.String      `tfsdk:"type"`
-	Config actionConfigModel `tfsdk:"configuration"`
+	Type   string            `tfsdk:"type"`
+	Config actionConfigModel `tfsdk:"config"`
 }
 
 // triggerConfigurationModel maps coffee order item data.
 type actionConfigModel struct {
-	EmailTemplateModel types.String `tfsdk:"email_template_id"`
+	EmailTemplateID string `tfsdk:"email_template_id"`
 }
 
 // NewAutomationResource is a helper function to simplify the provider implementation.
@@ -118,47 +118,66 @@ func (r *automationResource) Schema(_ context.Context, _ resource.SchemaRequest,
 
 // Create creates the resource and sets the initial Terraform state.
 func (r *automationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var anyTrigger automation_api.AnyTrigger
-	config := struct {
-		SourceId uuid.UUID `json:"source_id"`
-	}{
-		SourceId: uuid.MustParse("679472e0-9342-11ed-8d06-2b3e41a64461"),
-	}
-
-	anyTrigger.FromJourneySubmitTrigger(automation_api.JourneySubmitTrigger{
-		Type: "journey_submission",
-		Configuration: config,
-	})
-
-
-	var anyAction automation_api.AnyActionConfig
-
-	var actionType interface{} = "send_email"
-	emailTemplateId := "ea3b4979-306a-4368-b2ae-09456730fa84"
-
-	anyAction.FromSendEmailActionConfig(automation_api.SendEmailActionConfig{
-		Type: &actionType,
-		Config: &automation_api.SendEmailConfig{
-			EmailTemplateId: &emailTemplateId,
-		},
-	})
-
-	createFlowData := automation_api.AutomationFlow{
-		FlowName: "Created from Terraform",
-		Triggers: []automation_api.AnyTrigger{
-			anyTrigger,
-		},
-		Actions: []automation_api.AnyActionConfig{
-			anyAction,
-		},
-	}
-
-	r.client.AutomationClient.CreateFlowWithResponse(ctx, createFlowData)
-
-	diags := resp.State.Set(ctx, createFlowData)
+	var plan automationResourceModel
+	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
-			return
+		return
+	}
+
+	var triggers []automationapi.AnyTrigger
+	for _, trigger := range plan.Triggers {
+		var anyTrigger automationapi.AnyTrigger
+
+		anyTrigger.FromJourneySubmitTrigger(automationapi.JourneySubmitTrigger{
+			Type: automationapi.JourneySubmitTriggerType(trigger.Type),
+			Configuration: struct {
+				SourceId openapi_types.UUID `json:"source_id"`
+			}{
+				SourceId: uuid.MustParse(trigger.Configuration.SourceID),
+			},
+		})
+
+		triggers = append(triggers, anyTrigger)
+	}
+
+	var actions []automationapi.AnyActionConfig
+	for _, action := range plan.Actions {
+		var anyAction automationapi.AnyActionConfig
+		var actionType interface{} = action.Type
+
+		emailTemplateId := action.Config.EmailTemplateID
+
+		anyAction.FromSendEmailActionConfig(automationapi.SendEmailActionConfig{
+			Type: &actionType,
+			Config: &automationapi.SendEmailConfig{
+				EmailTemplateId: &emailTemplateId,
+			},
+		})
+
+		actions = append(actions, anyAction)
+	}
+
+	createFlowData := automationapi.AutomationFlow{
+		FlowName: plan.FlowName,
+		Triggers: triggers,
+		Actions:  actions,
+	}
+
+	res, err := r.client.AutomationClient.CreateFlowWithResponse(ctx, createFlowData)
+
+	if err != nil {
+		panic(err)
+	}
+
+	if res.StatusCode() != 201 {
+		panic(res)
+	}
+
+	diags = resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 }
 
